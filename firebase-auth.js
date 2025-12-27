@@ -1,6 +1,6 @@
 // Firebase Authentication Module
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 // Firebase Configuration
@@ -34,22 +34,49 @@ const userName = document.getElementById('userName');
 getRedirectResult(auth)
     .then((result) => {
         if (result) {
+            console.log('Redirect sign-in successful');
             showToast('התחברת בהצלחה! 🎉', 'success');
         }
     })
     .catch((error) => {
         console.error('Error with redirect result:', error);
-        showToast('שגיאה בהתחברות. נסה שוב.', 'error');
+        if (error.code !== 'auth/invalid-api-key') {
+            showToast('שגיאה בהתחברות. נסה שוב.', 'error');
+        }
     });
 
-// Google Sign In with Redirect
+// Google Sign In with Popup (fallback to Redirect for iOS)
 btnGoogleSignIn?.addEventListener('click', async () => {
     const provider = new GoogleAuthProvider();
+
+    // Add custom parameters for better iOS compatibility
+    provider.setCustomParameters({
+        prompt: 'select_account'
+    });
+
     try {
-        await signInWithRedirect(auth, provider);
+        // Try popup first (works better on most devices)
+        await signInWithPopup(auth, provider);
+        console.log('Popup sign-in successful');
+        showToast('התחברת בהצלחה! 🎉', 'success');
     } catch (error) {
-        console.error('Error signing in:', error);
-        showToast('שגיאה בהתחברות. נסה שוב.', 'error');
+        console.log('Popup failed, trying redirect...', error.code);
+
+        // If popup fails (like in iOS), fall back to redirect
+        if (error.code === 'auth/popup-blocked' ||
+            error.code === 'auth/popup-closed-by-user' ||
+            error.code === 'auth/cancelled-popup-request' ||
+            error.message.includes('popup')) {
+            try {
+                await signInWithRedirect(auth, provider);
+            } catch (redirectError) {
+                console.error('Redirect also failed:', redirectError);
+                showToast('שגיאה בהתחברות. נסה שוב.', 'error');
+            }
+        } else {
+            console.error('Sign-in error:', error);
+            showToast('שגיאה בהתחברות. נסה שוב.', 'error');
+        }
     }
 });
 
