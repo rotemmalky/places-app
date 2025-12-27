@@ -73,49 +73,107 @@
         </div>
     </header>
 
-    <!-- Filters Bar -->
+    <!-- Advanced Filters Bar -->
     <section class="filters-bar">
-        <div class="search-box">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="searchInput" placeholder="חיפוש מקום או כתובת...">
+        <!-- Top Row: Search & View Controls -->
+        <div class="filters-row">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="חיפוש מקום, כתובת או תיאור...">
+            </div>
+
+            <div class="view-controls">
+                <button class="btn-view active" data-view="grid" title="תצוגת רשת">
+                    <span>▦</span>
+                </button>
+                <button class="btn-view" data-view="list" title="תצוגת רשימה">
+                    <span>☰</span>
+                </button>
+            </div>
+
+            <select id="sortSelect" class="sort-select">
+                <option value="date-desc">הכי חדש</option>
+                <option value="date-asc">הכי ישן</option>
+                <option value="name-asc">שם (א-ת)</option>
+                <option value="name-desc">שם (ת-א)</option>
+                <option value="rating-desc">דירוג גבוה</option>
+                <option value="rating-asc">דירוג נמוך</option>
+            </select>
+
+            <button class="btn-toggle-filters" id="btnToggleFilters">
+                <span>סינון מתקדם</span>
+                <span class="toggle-icon">▼</span>
+            </button>
         </div>
 
-        <div class="filter-chips">
-            <button class="chip chip-category active" data-category="all">
-                <span>הכל</span>
-                <span class="chip-count" id="countAll">0</span>
-            </button>
-            <button class="chip chip-category" data-category="restaurant">
-                <span>🍽️ מסעדות</span>
-                <span class="chip-count" id="countRestaurant">0</span>
-            </button>
-            <button class="chip chip-category" data-category="bar">
-                <span>🍸 ברים</span>
-                <span class="chip-count" id="countBar">0</span>
-            </button>
-            <button class="chip chip-category" data-category="cafe">
-                <span>☕ בתי קפה</span>
-                <span class="chip-count" id="countCafe">0</span>
-            </button>
-            <button class="chip chip-category" data-category="attraction">
-                <span>🎡 אטרקציות</span>
-                <span class="chip-count" id="countAttraction">0</span>
-            </button>
-            <button class="chip chip-category" data-category="other">
-                <span>✨ אחר</span>
-                <span class="chip-count" id="countOther">0</span>
-            </button>
-        </div>
+        <!-- Advanced Filters Panel (Collapsible) -->
+        <div class="advanced-filters" id="advancedFilters" style="display:none;">
+            <!-- Region Filter -->
+            <div class="filter-group">
+                <label class="filter-label">🗺️ אזור</label>
+                <div class="filter-chips">
+                    <button class="chip chip-filter active" data-filter="region" data-value="all">הכל</button>
+                    <button class="chip chip-filter" data-filter="region" data-value="north">צפון</button>
+                    <button class="chip chip-filter" data-filter="region" data-value="haifa">חיפה והקריות</button>
+                    <button class="chip chip-filter" data-filter="region" data-value="center">מרכז</button>
+                    <button class="chip chip-filter" data-filter="region" data-value="telaviv">תל אביב</button>
+                    <button class="chip chip-filter" data-filter="region" data-value="jerusalem">ירושלים</button>
+                    <button class="chip chip-filter" data-filter="region" data-value="south">דרום</button>
+                    <button class="chip chip-filter" data-filter="region" data-value="eilat">אילת</button>
+                </div>
+            </div>
 
-        <div class="filter-toggles">
-            <button class="toggle-btn" id="toggleVisited" data-filter="all">
-                <span class="toggle-icon">👁️</span>
-                <span>הכל</span>
-            </button>
-            <button class="toggle-btn" id="togglePriority" data-priority="all">
-                <span class="toggle-icon">⭐</span>
-                <span>כל העדיפויות</span>
-            </button>
+            <!-- Place Type Filter -->
+            <div class="filter-group">
+                <label class="filter-label">🏪 סוג מקום</label>
+                <div class="filter-chips">
+                    <button class="chip chip-filter active" data-filter="type" data-value="all">הכל</button>
+                    <button class="chip chip-filter" data-filter="type" data-value="restaurant">🍽️ מסעדה</button>
+                    <button class="chip chip-filter" data-filter="type" data-value="cafe">☕ בית קפה</button>
+                    <button class="chip chip-filter" data-filter="type" data-value="coffee-cart">🚐 עגלת קפה</button>
+                    <button class="chip chip-filter" data-filter="type" data-value="bar">🍸 בר</button>
+                    <button class="chip chip-filter" data-filter="type" data-value="pub">🍺 פאב</button>
+                    <button class="chip chip-filter" data-filter="type" data-value="bakery">🥖 מאפייה</button>
+                    <button class="chip chip-filter" data-filter="type" data-value="other">🏪 אחר</button>
+                </div>
+            </div>
+
+            <!-- Rating & Price Filters -->
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label class="filter-label">⭐ דירוג מינימלי</label>
+                    <select id="ratingFilter" class="filter-select">
+                        <option value="0">הכל</option>
+                        <option value="1">1+ כוכבים</option>
+                        <option value="2">2+ כוכבים</option>
+                        <option value="3">3+ כוכבים</option>
+                        <option value="4">4+ כוכבים</option>
+                        <option value="5">5 כוכבים</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">💰 רמת מחיר</label>
+                    <select id="priceFilter" class="filter-select">
+                        <option value="all">הכל</option>
+                        <option value="1">₪ (זול)</option>
+                        <option value="2">₪₪ (בינוני)</option>
+                        <option value="3">₪₪₪ (יקר)</option>
+                        <option value="4">₪₪₪₪ (יוקרתי)</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">📅 ביקרתי</label>
+                    <select id="visitedFilter" class="filter-select">
+                        <option value="all">הכל</option>
+                        <option value="yes">רק מקומות שביקרתי</option>
+                        <option value="no">מקומות שטרם ביקרתי</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn-clear-filters" id="btnClearFilters">🔄 נקה סינונים</button>
         </div>
     </section>
 
@@ -201,6 +259,48 @@
                         <option value="cafe">☕ בית קפה</option>
                         <option value="attraction">🎡 אטרקציה</option>
                         <option value="other">✨ אחר</option>
+                    </select>
+                </div>
+
+                <!-- Region -->
+                <div class="form-group">
+                    <label for="placeRegion">אזור 🗺️</label>
+                    <select id="placeRegion">
+                        <option value="">בחר אזור</option>
+                        <option value="north">צפון</option>
+                        <option value="haifa">חיפה והקריות</option>
+                        <option value="center">מרכז</option>
+                        <option value="telaviv">תל אביב</option>
+                        <option value="jerusalem">ירושלים</option>
+                        <option value="south">דרום</option>
+                        <option value="eilat">אילת</option>
+                    </select>
+                </div>
+
+                <!-- Place Type (detailed) -->
+                <div class="form-group">
+                    <label for="placeType">סוג מקום 🏪</label>
+                    <select id="placeType">
+                        <option value="">בחר סוג</option>
+                        <option value="restaurant">🍽️ מסעדה</option>
+                        <option value="cafe">☕ בית קפה</option>
+                        <option value="coffee-cart">🚐 עגלת קפה</option>
+                        <option value="bar">🍸 בר</option>
+                        <option value="pub">🍺 פאב</option>
+                        <option value="bakery">🥖 מאפייה</option>
+                        <option value="other">🏪 אחר</option>
+                    </select>
+                </div>
+
+                <!-- Price Level -->
+                <div class="form-group">
+                    <label for="priceLevel">רמת מחיר 💰</label>
+                    <select id="priceLevel">
+                        <option value="0">לא צוין</option>
+                        <option value="1">₪ (זול)</option>
+                        <option value="2">₪₪ (בינוני)</option>
+                        <option value="3">₪₪₪ (יקר)</option>
+                        <option value="4">₪₪₪₪ (יוקרתי)</option>
                     </select>
                 </div>
 
