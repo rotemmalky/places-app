@@ -3,55 +3,33 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#FF6B9D">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>מקומות בילוי 📍</title>
-
-    <!-- PWA Manifest -->
+    <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
-
-    <!-- Icons -->
-    <link rel="apple-touch-icon" href="icon-192.png">
-
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&family=Rubik:wght@400;500;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700&family=Rubik:wght@500;700&display=swap"
         rel="stylesheet">
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <!-- Authentication Section -->
+    <!-- Authentication Screen -->
     <div class="auth-container" id="authContainer">
         <div class="auth-content">
             <div class="auth-icon">📍</div>
             <h1>מקומות בילוי</h1>
-            <p>התחבר כדי לגשת למקומות שלך</p>
+            <p>התחבר כדי לשמור ולסנכרן את המקומות שלך</p>
             <button class="btn-google-signin" id="btnGoogleSignIn">
-                <svg width="18" height="18" viewBox="0 0 18 18">
-                    <path fill="#4285F4"
-                        d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" />
-                    <path fill="#34A853"
-                        d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" />
-                    <path fill="#FBBC05"
-                        d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.593.102-1.17.282-1.709V4.958H.957C.347 6.173 0 7.548 0 9c0 1.452.348 2.827.957 4.042l3.007-2.335z" />
-                    <path fill="#EA4335"
-                        d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" />
-                </svg>
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20">
                 התחבר עם Google
             </button>
         </div>
     </div>
 
-    <!-- Header -->
-    <header class="header" id="mainHeader" style="display: none;">
+    <!-- Main Header -->
+    <header class="header" id="mainHeader" style="display:none;">
         <div class="header-content">
             <div class="header-right">
                 <h1 class="app-title">
@@ -73,79 +51,63 @@
         </div>
     </header>
 
-    <!-- Advanced Filters Bar -->
-    <section class="filters-bar">
-        <!-- Top Row: Search & View Controls -->
+    <!-- Filters Bar -->
+    <section class="filters-bar" style="display:none;">
         <div class="filters-row">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="searchInput" placeholder="חיפוש מקום, כתובת או תיאור...">
+                <input type="text" id="searchInput" placeholder="חיפוש מקום...">
             </div>
 
             <div class="view-controls">
-                <button class="btn-view active" data-view="grid" title="תצוגת רשת">
-                    <span>▦</span>
-                </button>
-                <button class="btn-view" data-view="list" title="תצוגת רשימה">
-                    <span>☰</span>
-                </button>
+                <button class="btn-view active" data-view="grid" title="תצוגת רשת">▦</button>
+                <button class="btn-view" data-view="list" title="תצוגת רשימה">☰</button>
             </div>
 
             <select id="sortSelect" class="sort-select">
                 <option value="date-desc">הכי חדש</option>
                 <option value="date-asc">הכי ישן</option>
                 <option value="name-asc">שם (א-ת)</option>
-                <option value="name-desc">שם (ת-א)</option>
                 <option value="rating-desc">דירוג גבוה</option>
-                <option value="rating-asc">דירוג נמוך</option>
             </select>
 
             <button class="btn-toggle-filters" id="btnToggleFilters">
-                <span>סינון מתקדם</span>
-                <span class="toggle-icon">▼</span>
+                סינון מתקדם ▼
             </button>
         </div>
 
-        <!-- Advanced Filters Panel (Collapsible) -->
+        <!-- Advanced Filters -->
         <div class="advanced-filters" id="advancedFilters" style="display:none;">
-            <!-- Region Filter -->
             <div class="filter-group">
                 <label class="filter-label">🗺️ אזור</label>
                 <div class="filter-chips">
-                    <button class="chip chip-filter active" data-filter="region" data-value="all">הכל</button>
-                    <button class="chip chip-filter" data-filter="region" data-value="north">צפון</button>
-                    <button class="chip chip-filter" data-filter="region" data-value="haifa">חיפה והקריות</button>
-                    <button class="chip chip-filter" data-filter="region" data-value="center">מרכז</button>
-                    <button class="chip chip-filter" data-filter="region" data-value="telaviv">תל אביב</button>
-                    <button class="chip chip-filter" data-filter="region" data-value="jerusalem">ירושלים</button>
-                    <button class="chip chip-filter" data-filter="region" data-value="south">דרום</button>
-                    <button class="chip chip-filter" data-filter="region" data-value="eilat">אילת</button>
+                    <button class="chip active" data-filter="region" data-value="all">הכל</button>
+                    <button class="chip" data-filter="region" data-value="north">צפון</button>
+                    <button class="chip" data-filter="region" data-value="haifa">חיפה</button>
+                    <button class="chip" data-filter="region" data-value="center">מרכז</button>
+                    <button class="chip" data-filter="region" data-value="telaviv">תל אביב</button>
+                    <button class="chip" data-filter="region" data-value="jerusalem">ירושלים</button>
+                    <button class="chip" data-filter="region" data-value="south">דרום</button>
                 </div>
             </div>
 
-            <!-- Place Type Filter -->
             <div class="filter-group">
                 <label class="filter-label">🏪 סוג מקום</label>
                 <div class="filter-chips">
-                    <button class="chip chip-filter active" data-filter="type" data-value="all">הכל</button>
-                    <button class="chip chip-filter" data-filter="type" data-value="restaurant">🍽️ מסעדה</button>
-                    <button class="chip chip-filter" data-filter="type" data-value="cafe">☕ בית קפה</button>
-                    <button class="chip chip-filter" data-filter="type" data-value="coffee-cart">🚐 עגלת קפה</button>
-                    <button class="chip chip-filter" data-filter="type" data-value="bar">🍸 בר</button>
-                    <button class="chip chip-filter" data-filter="type" data-value="pub">🍺 פאב</button>
-                    <button class="chip chip-filter" data-filter="type" data-value="bakery">🥖 מאפייה</button>
-                    <button class="chip chip-filter" data-filter="type" data-value="other">🏪 אחר</button>
+                    <button class="chip active" data-filter="category" data-value="all">הכל</button>
+                    <button class="chip" data-filter="category" data-value="restaurant">🍽️ מסעדה</button>
+                    <button class="chip" data-filter="category" data-value="cafe">☕ בית קפה</button>
+                    <button class="chip" data-filter="category" data-value="coffee-cart">🚐 עגלת קפה</button>
+                    <button class="chip" data-filter="category" data-value="bar">🍸 בר</button>
+                    <button class="chip" data-filter="category" data-value="bakery">🥖 מאפייה</button>
                 </div>
             </div>
 
-            <!-- Rating & Price Filters -->
             <div class="filter-row">
                 <div class="filter-group">
                     <label class="filter-label">⭐ דירוג מינימלי</label>
                     <select id="ratingFilter" class="filter-select">
                         <option value="0">הכל</option>
-                        <option value="1">1+ כוכבים</option>
-                        <option value="2">2+ כוכבים</option>
                         <option value="3">3+ כוכבים</option>
                         <option value="4">4+ כוכבים</option>
                         <option value="5">5 כוכבים</option>
@@ -156,19 +118,18 @@
                     <label class="filter-label">💰 רמת מחיר</label>
                     <select id="priceFilter" class="filter-select">
                         <option value="all">הכל</option>
-                        <option value="1">₪ (זול)</option>
-                        <option value="2">₪₪ (בינוני)</option>
-                        <option value="3">₪₪₪ (יקר)</option>
-                        <option value="4">₪₪₪₪ (יוקרתי)</option>
+                        <option value="1">₪ זול</option>
+                        <option value="2">₪₪ בינוני</option>
+                        <option value="3">₪₪₪ יקר</option>
                     </select>
                 </div>
 
                 <div class="filter-group">
-                    <label class="filter-label">📅 ביקרתי</label>
+                    <label class="filter-label">📅 ביקור</label>
                     <select id="visitedFilter" class="filter-select">
                         <option value="all">הכל</option>
-                        <option value="yes">רק מקומות שביקרתי</option>
-                        <option value="no">מקומות שטרם ביקרתי</option>
+                        <option value="yes">ביקרתי</option>
+                        <option value="no">טרם ביקרתי</option>
                     </select>
                 </div>
             </div>
@@ -178,7 +139,7 @@
     </section>
 
     <!-- Stats Bar -->
-    <section class="stats-bar">
+    <section class="stats-bar" style="display:none;">
         <div class="stat-item">
             <span class="stat-value" id="statTotal">0</span>
             <span class="stat-label">מקומות</span>
@@ -194,27 +155,19 @@
     </section>
 
     <!-- Places Grid -->
-    <main class="places-container">
-        <div class="places-grid" id="placesGrid">
-            <!-- Places will be dynamically inserted here -->
-        </div>
+    <main class="places-container" style="display:none;">
+        <div class="places-grid" id="placesGrid"></div>
 
-        <!-- Empty State -->
         <div class="empty-state" id="emptyState">
             <div class="empty-icon">💫</div>
             <h2>עדיין אין מקומות ברשימה</h2>
-            <p>הוסיפו את המקום הראשון שאתם רוצים לבקר בו!</p>
-            <button class="btn-primary" onclick="document.getElementById('btnAdd').click()">
-                <span>+</span>
-                הוסף מקום ראשון
-            </button>
+            <p>הוסף את המקום הראשון!</p>
         </div>
 
-        <!-- No Results State -->
-        <div class="empty-state" id="noResults" style="display: none;">
+        <div class="empty-state" id="noResults" style="display:none;">
             <div class="empty-icon">🔍</div>
             <h2>לא נמצאו תוצאות</h2>
-            <p>נסה לשנות את מסנני החיפוש</p>
+            <p>נסה לשנות את הסינון</p>
         </div>
     </main>
 
@@ -231,8 +184,8 @@
                 <input type="hidden" id="placeId">
 
                 <!-- Image Upload -->
-                <div class="form-group image-upload-area" id="imageUploadArea">
-                    <div class="image-preview" id="imagePreview">
+                <div class="form-group image-upload-area">
+                    <div class="image-preview" id="imagePreview" style="display:none;">
                         <img id="previewImg" alt="תצוגה מקדימה">
                         <button type="button" class="btn-remove-image" id="btnRemoveImage">×</button>
                     </div>
@@ -251,14 +204,17 @@
 
                 <!-- Category -->
                 <div class="form-group">
-                    <label for="placeCategory">קטגוריה *</label>
+                    <label for="placeCategory">סוג מקום 🏪 *</label>
                     <select id="placeCategory" required>
-                        <option value="">בחר קטגוריה</option>
+                        <option value="">בחר סוג</option>
                         <option value="restaurant">🍽️ מסעדה</option>
-                        <option value="bar">🍸 בר</option>
                         <option value="cafe">☕ בית קפה</option>
-                        <option value="attraction">🎡 אטרקציה</option>
-                        <option value="other">✨ אחר</option>
+                        <option value="coffee-cart">🚐 עגלת קפה</option>
+                        <option value="bar">🍸 בר</option>
+                        <option value="pub">🍺 פאב</option>
+                        <option value="bakery">🥖 מאפייה</option>
+                        <option value="attraction">🎭 אטרקציה</option>
+                        <option value="other">🏪 אחר</option>
                     </select>
                 </div>
 
@@ -277,30 +233,14 @@
                     </select>
                 </div>
 
-                <!-- Place Type (detailed) -->
-                <div class="form-group">
-                    <label for="placeType">סוג מקום 🏪</label>
-                    <select id="placeType">
-                        <option value="">בחר סוג</option>
-                        <option value="restaurant">🍽️ מסעדה</option>
-                        <option value="cafe">☕ בית קפה</option>
-                        <option value="coffee-cart">🚐 עגלת קפה</option>
-                        <option value="bar">🍸 בר</option>
-                        <option value="pub">🍺 פאב</option>
-                        <option value="bakery">🥖 מאפייה</option>
-                        <option value="other">🏪 אחר</option>
-                    </select>
-                </div>
-
                 <!-- Price Level -->
                 <div class="form-group">
                     <label for="priceLevel">רמת מחיר 💰</label>
                     <select id="priceLevel">
                         <option value="0">לא צוין</option>
-                        <option value="1">₪ (זול)</option>
-                        <option value="2">₪₪ (בינוני)</option>
-                        <option value="3">₪₪₪ (יקר)</option>
-                        <option value="4">₪₪₪₪ (יוקרתי)</option>
+                        <option value="1">₪ זול</option>
+                        <option value="2">₪₪ בינוני</option>
+                        <option value="3">₪₪₪ יקר</option>
                     </select>
                 </div>
 
@@ -318,7 +258,7 @@
 
                 <!-- Rating -->
                 <div class="form-group">
-                    <label>דירוג</label>
+                    <label>דירוג ⭐</label>
                     <div class="star-rating" id="starRating">
                         <button type="button" class="star" data-rating="1">★</button>
                         <button type="button" class="star" data-rating="2">★</button>
@@ -329,92 +269,41 @@
                     <input type="hidden" id="placeRating" value="0">
                 </div>
 
-                <!-- Priority -->
-                <div class="form-group">
-                    <label>עדיפות</label>
-                    <div class="priority-selector">
-                        <button type="button" class="priority-btn" data-priority="high">
-                            <span>🔥</span>
-                            גבוהה
-                        </button>
-                        <button type="button" class="priority-btn active" data-priority="medium">
-                            <span>⭐</span>
-                            בינונית
-                        </button>
-                        <button type="button" class="priority-btn" data-priority="low">
-                            <span>💫</span>
-                            נמוכה
-                        </button>
-                    </div>
-                    <input type="hidden" id="placePriority" value="medium">
-                </div>
-
                 <!-- Notes -->
                 <div class="form-group">
                     <label for="placeNotes">הערות</label>
-                    <textarea id="placeNotes" rows="4" placeholder="למה אתם רוצים להגיע לשם? מה מיוחד?"></textarea>
+                    <textarea id="placeNotes" rows="3" placeholder="מה מיוחד במקום..."></textarea>
                 </div>
 
-                <!-- Additional Info Checkboxes -->
+                <!-- Checkboxes -->
                 <div class="form-group checkbox-group">
                     <label class="checkbox-label">
                         <input type="checkbox" id="placeOpenSaturday">
-                        <span class="checkbox-custom"></span>
-                        <span>פתוח בשבת</span>
+                        <span>🗓️ פתוח בשבת</span>
                     </label>
-                </div>
-
-                <div class="form-group checkbox-group">
                     <label class="checkbox-label">
                         <input type="checkbox" id="placeOnlineReservation">
-                        <span class="checkbox-custom"></span>
-                        <span>ניתן להזמין מקום באינטרנט</span>
+                        <span>💻 הזמנה אונליין</span>
                     </label>
-                </div>
-
-                <!-- Visited Checkbox -->
-                <div class="form-group checkbox-group">
                     <label class="checkbox-label">
                         <input type="checkbox" id="placeVisited">
-                        <span class="checkbox-custom"></span>
-                        <span>כבר ביקרנו במקום הזה</span>
+                        <span>✓ ביקרתי כאן</span>
                     </label>
                 </div>
 
-                <!-- Submit Buttons -->
-                <div class="modal-actions">
+                <div class="modal-footer">
                     <button type="button" class="btn-secondary" onclick="closeModal()">ביטול</button>
-                    <button type="submit" class="btn-primary" id="btnSubmit">שמור</button>
+                    <button type="submit" class="btn-primary">שמור</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Confirm Delete Modal -->
-    <div class="modal modal-small" id="deleteModal">
-        <div class="modal-overlay" onclick="closeDeleteModal()"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>מחיקת מקום</h2>
-            </div>
-            <div class="modal-body">
-                <p>האם אתה בטוח שברצונך למחוק את המקום "<strong id="deleteModalPlaceName"></strong>"?</p>
-                <p class="text-muted">פעולה זו לא ניתנת לביטול</p>
-            </div>
-            <div class="modal-actions">
-                <button class="btn-secondary" onclick="closeDeleteModal()">ביטול</button>
-                <button class="btn-danger" id="btnConfirmDelete">מחק</button>
-            </div>
-        </div>
-    </div>
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
 
-    <!-- Toast Notifications -->
-    <div class="toast-container" id="toastContainer"></div>
-
-    <!-- Firebase Authentication Script -->
+    <!-- Scripts -->
     <script type="module" src="firebase-auth.js"></script>
-
-    <!-- Main Script -->
     <script type="module" src="app.js"></script>
 </body>
 
