@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#FF6B9D">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <title>מקומות בילוי 📍</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&family=Rubik:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1 class="app-title">
+                <span class="title-icon">📍</span>
+                מקומות בילוי
+            </h1>
+            <button class="btn-add" id="btnAdd">
+                <span class="btn-icon">+</span>
+                הוסף מקום
+            </button>
+        </div>
+    </header>
+
+    <!-- Filters Bar -->
+    <section class="filters-bar">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="חיפוש מקום או כתובת...">
+        </div>
+
+        <div class="filter-chips">
+            <button class="chip chip-category active" data-category="all">
+                <span>הכל</span>
+                <span class="chip-count" id="countAll">0</span>
+            </button>
+            <button class="chip chip-category" data-category="restaurant">
+                <span>🍽️ מסעדות</span>
+                <span class="chip-count" id="countRestaurant">0</span>
+            </button>
+            <button class="chip chip-category" data-category="bar">
+                <span>🍸 ברים</span>
+                <span class="chip-count" id="countBar">0</span>
+            </button>
+            <button class="chip chip-category" data-category="cafe">
+                <span>☕ בתי קפה</span>
+                <span class="chip-count" id="countCafe">0</span>
+            </button>
+            <button class="chip chip-category" data-category="attraction">
+                <span>🎡 אטרקציות</span>
+                <span class="chip-count" id="countAttraction">0</span>
+            </button>
+            <button class="chip chip-category" data-category="other">
+                <span>✨ אחר</span>
+                <span class="chip-count" id="countOther">0</span>
+            </button>
+        </div>
+
+        <div class="filter-toggles">
+            <button class="toggle-btn" id="toggleVisited" data-filter="all">
+                <span class="toggle-icon">👁️</span>
+                <span>הכל</span>
+            </button>
+            <button class="toggle-btn" id="togglePriority" data-priority="all">
+                <span class="toggle-icon">⭐</span>
+                <span>כל העדיפויות</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Stats Bar -->
+    <section class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-value" id="statTotal">0</span>
+            <span class="stat-label">מקומות</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" id="statVisited">0</span>
+            <span class="stat-label">ביקרנו</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" id="statRemaining">0</span>
+            <span class="stat-label">נותרו</span>
+        </div>
+    </section>
+
+    <!-- Places Grid -->
+    <main class="places-container">
+        <div class="places-grid" id="placesGrid">
+            <!-- Places will be dynamically inserted here -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState">
+            <div class="empty-icon">💫</div>
+            <h2>עדיין אין מקומות ברשימה</h2>
+            <p>הוסיפו את המקום הראשון שאתם רוצים לבקר בו!</p>
+            <button class="btn-primary" onclick="document.getElementById('btnAdd').click()">
+                <span>+</span>
+                הוסף מקום ראשון
+            </button>
+        </div>
+
+        <!-- No Results State -->
+        <div class="empty-state" id="noResults" style="display: none;">
+            <div class="empty-icon">🔍</div>
+            <h2>לא נמצאו תוצאות</h2>
+            <p>נסה לשנות את מסנני החיפוש</p>
+        </div>
+    </main>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal" id="placeModal">
+        <div class="modal-overlay" onclick="closeModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">הוספת מקום חדש</h2>
+                <button class="btn-close" onclick="closeModal()">×</button>
+            </div>
+
+            <form class="modal-body" id="placeForm">
+                <input type="hidden" id="placeId">
+
+                <!-- Image Upload -->
+                <div class="form-group image-upload-area" id="imageUploadArea">
+                    <div class="image-preview" id="imagePreview">
+                        <img id="previewImg" alt="תצוגה מקדימה">
+                        <button type="button" class="btn-remove-image" id="btnRemoveImage">×</button>
+                    </div>
+                    <label class="upload-label" id="uploadLabel">
+                        <input type="file" id="imageInput" accept="image/*" hidden>
+                        <span class="upload-icon">📷</span>
+                        <span>הוסף תמונה</span>
+                    </label>
+                </div>
+
+                <!-- Name -->
+                <div class="form-group">
+                    <label for="placeName">שם המקום *</label>
+                    <input type="text" id="placeName" required placeholder="לדוגמה: קפה גרג">
+                </div>
+
+                <!-- Category -->
+                <div class="form-group">
+                    <label for="placeCategory">קטגוריה *</label>
+                    <select id="placeCategory" required>
+                        <option value="">בחר קטגוריה</option>
+                        <option value="restaurant">🍽️ מסעדה</option>
+                        <option value="bar">🍸 בר</option>
+                        <option value="cafe">☕ בית קפה</option>
+                        <option value="attraction">🎡 אטרקציה</option>
+                        <option value="other">✨ אחר</option>
+                    </select>
+                </div>
+
+                <!-- Address -->
+                <div class="form-group">
+                    <label for="placeAddress">כתובת</label>
+                    <input type="text" id="placeAddress" placeholder="רחוב, עיר">
+                </div>
+
+                <!-- Website -->
+                <div class="form-group">
+                    <label for="placeWebsite">קישור לאתר</label>
+                    <input type="url" id="placeWebsite" placeholder="https://...">
+                </div>
+
+                <!-- Rating -->
+                <div class="form-group">
+                    <label>דירוג</label>
+                    <div class="star-rating" id="starRating">
+                        <button type="button" class="star" data-rating="1">★</button>
+                        <button type="button" class="star" data-rating="2">★</button>
+                        <button type="button" class="star" data-rating="3">★</button>
+                        <button type="button" class="star" data-rating="4">★</button>
+                        <button type="button" class="star" data-rating="5">★</button>
+                    </div>
+                    <input type="hidden" id="placeRating" value="0">
+                </div>
+
+                <!-- Priority -->
+                <div class="form-group">
+                    <label>עדיפות</label>
+                    <div class="priority-selector">
+                        <button type="button" class="priority-btn" data-priority="high">
+                            <span>🔥</span>
+                            גבוהה
+                        </button>
+                        <button type="button" class="priority-btn active" data-priority="medium">
+                            <span>⭐</span>
+                            בינונית
+                        </button>
+                        <button type="button" class="priority-btn" data-priority="low">
+                            <span>💫</span>
+                            נמוכה
+                        </button>
+                    </div>
+                    <input type="hidden" id="placePriority" value="medium">
+                </div>
+
+                <!-- Notes -->
+                <div class="form-group">
+                    <label for="placeNotes">הערות</label>
+                    <textarea id="placeNotes" rows="4" placeholder="למה אתם רוצים להגיע לשם? מה מיוחד?"></textarea>
+                </div>
+
+                <!-- Additional Info Checkboxes -->
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="placeOpenSaturday">
+                        <span class="checkbox-custom"></span>
+                        <span>פתוח בשבת</span>
+                    </label>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="placeOnlineReservation">
+                        <span class="checkbox-custom"></span>
+                        <span>ניתן להזמין מקום באינטרנט</span>
+                    </label>
+                </div>
+
+                <!-- Visited Checkbox -->
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="placeVisited">
+                        <span class="checkbox-custom"></span>
+                        <span>כבר ביקרנו במקום הזה</span>
+                    </label>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">ביטול</button>
+                    <button type="submit" class="btn-primary" id="btnSubmit">שמור</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div class="modal modal-small" id="deleteModal">
+        <div class="modal-overlay" onclick="closeDeleteModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>מחיקת מקום</h2>
+            </div>
+            <div class="modal-body">
+                <p>האם אתה בטוח שברצונך למחוק את המקום "<strong id="deleteModalPlaceName"></strong>"?</p>
+                <p class="text-muted">פעולה זו לא ניתנת לביטול</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeDeleteModal()">ביטול</button>
+                <button class="btn-danger" id="btnConfirmDelete">מחק</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Main Script -->
+    <script src="app.js"></script>
+</body>
+
+</html>

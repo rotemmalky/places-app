@@ -1,0 +1,31 @@
+{
+  "name": "מקומות בילוי - Places Organizer",
+  "short_name": "מקומות בילוי",
+  "description": "אפליקציה לניהול רשימת מקומות בילוי",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF5F7",
+  "theme_color": "#FF6B9D",
+  "orientation": "portrait-primary",
+  "dir": "rtl",
+  "lang": "he",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "lifestyle",
+    "travel"
+  ],
+  "screenshots": []
+}
