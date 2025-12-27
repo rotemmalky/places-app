@@ -37,19 +37,19 @@ const PRIORITY_CONFIG = {
 // Initialization
 // ================================
 document.addEventListener('DOMContentLoaded', () => {
-    init EventListeners();
+    initEventListeners();
 });
 
-// Load user places when authenticated
+//  Load shared places when authenticated
 window.loadUserPlaces = function (userId) {
     currentUserId = userId;
-    subscribeTo Places(userId);
+    subscribeToPlaces();
 };
 
 // ================================
 // Firestore Functions
 // ================================
-function subscribeToPlaces(userId) {
+function subscribeToPlaces() {
     if (!window.firebaseDb) {
         console.error('Firestore not initialized');
         return;
@@ -60,7 +60,8 @@ function subscribeToPlaces(userId) {
         unsubscribePlaces();
     }
 
-    const placesRef = collection(window.firebaseDb, `users/${userId}/places`);
+    // Use shared collection for both users
+    const placesRef = collection(window.firebaseDb, 'sharedPlaces');
 
     unsubscribePlaces = onSnapshot(placesRef, (snapshot) => {
         places = [];
@@ -89,7 +90,8 @@ async function savePlace(placeData) {
     }
 
     try {
-        const placeRef = doc(window.firebaseDb, `users/${currentUserId}/places`, placeData.id);
+        // Save to shared collection
+        const placeRef = doc(window.firebaseDb, 'sharedPlaces', placeData.id);
         await setDoc(placeRef, placeData);
         console.log('Place saved successfully');
     } catch (error) {
@@ -106,7 +108,8 @@ async function deletePlaceFromFirestore(placeId) {
     }
 
     try {
-        const placeRef = doc(window.firebaseDb, `users/${currentUserId}/places`, placeId);
+        // Delete from shared collection
+        const placeRef = doc(window.firebaseDb, 'sharedPlaces', placeId);
         await deleteDoc(placeRef);
         console.log('Place deleted successfully');
     } catch (error) {
