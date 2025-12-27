@@ -19,17 +19,34 @@ self.addEventListener('install', (event) => {
 });
 
 // Fetch event - serve from cache, fallback to network
+// IMPORTANT: Do NOT cache Firebase auth or API requests!
 self.addEventListener('fetch', (event) => {
+    const url = new URL(event.request.url);
+
+    // Skip caching for:
+    // 1. Firebase authentication requests
+    // 2. Firebase API requests
+    // 3. Google accounts (authentication)
+    if (url.hostname.includes('firebase') ||
+        url.hostname.includes('firebaseapp.com') ||
+        url.hostname.includes('googleapis.com') ||
+        url.hostname.includes('google.com') ||
+        url.pathname.includes('__/auth/') ||
+        event.request.method !== 'GET') {
+        // Always fetch from network for auth requests
+        event.respondWith(fetch(event.request));
+        return;
+    }
+
+    // For everything else, try cache first
     event.respondWith(
         caches.match(event.request)
             .then((response) => {
-                // Cache hit - return response
                 if (response) {
                     return response;
                 }
                 return fetch(event.request);
-            }
-            )
+            })
     );
 });
 
