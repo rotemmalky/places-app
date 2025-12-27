@@ -1,6 +1,6 @@
 // Firebase Authentication Module
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 // Firebase Configuration
@@ -30,12 +30,23 @@ const btnSignOut = document.getElementById('btnSignOut');
 const userAvatar = document.getElementById('userAvatar');
 const userName = document.getElementById('userName');
 
-// Google Sign In
+// Check for redirect result on page load
+getRedirectResult(auth)
+    .then((result) => {
+        if (result) {
+            showToast('התחברת בהצלחה! 🎉', 'success');
+        }
+    })
+    .catch((error) => {
+        console.error('Error with redirect result:', error);
+        showToast('שגיאה בהתחברות. נסה שוב.', 'error');
+    });
+
+// Google Sign In with Redirect
 btnGoogleSignIn?.addEventListener('click', async () => {
     const provider = new GoogleAuthProvider();
     try {
-        await signInWithPopup(auth, provider);
-        showToast('התחברת בהצלחה! 🎉', 'success');
+        await signInWithRedirect(auth, provider);
     } catch (error) {
         console.error('Error signing in:', error);
         showToast('שגיאה בהתחברות. נסה שוב.', 'error');
