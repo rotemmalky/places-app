@@ -1,3 +1,6 @@
+// Firebase Firestore Integration
+import { collection, doc, getDocs, setDoc, deleteDoc, onSnapshot, query, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
 // ================================
 // App State
 // ================================
@@ -10,6 +13,8 @@ let currentFilter = {
 };
 let editingPlaceId = null;
 let selectedImageData = null;
+let currentUserId = null;
+let unsubscribePlaces = null;
 
 // ================================
 // Category Config
@@ -32,29 +37,83 @@ const PRIORITY_CONFIG = {
 // Initialization
 // ================================
 document.addEventListener('DOMContentLoaded', () => {
-    loadPlaces();
-    initEventListeners();
-    renderPlaces();
-    updateStats();
+    init EventListeners();
 });
 
+// Load user places when authenticated
+window.loadUserPlaces = function (userId) {
+    currentUserId = userId;
+    subscribeTo Places(userId);
+};
+
 // ================================
-// LocalStorage Functions
+// Firestore Functions
 // ================================
-function loadPlaces() {
-    const stored = localStorage.getItem('places');
-    if (stored) {
-        try {
-            places = JSON.parse(stored);
-        } catch (e) {
-            console.error('Error loading places:', e);
-            places = [];
-        }
+function subscribeToPlaces(userId) {
+    if (!window.firebaseDb) {
+        console.error('Firestore not initialized');
+        return;
+    }
+
+    // Unsubscribe from previous listener
+    if (unsubscribePlaces) {
+        unsubscribePlaces();
+    }
+
+    const placesRef = collection(window.firebaseDb, `users/${userId}/places`);
+
+    unsubscribePlaces = onSnapshot(placesRef, (snapshot) => {
+        places = [];
+        snapshot.forEach((doc) => {
+            places.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        // Sort by createdAt descending
+        places.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+        renderPlaces();
+        updateStats();
+    }, (error) => {
+        console.error('Error loading places:', error);
+        showToast('שגיאה בטעינת המקומות', 'error');
+    });
+}
+
+async function savePlace(placeData) {
+    if (!currentUserId || !window.firebaseDb) {
+        showToast('יש להתחבר כדי לשמור מקומות', 'error');
+        return;
+    }
+
+    try {
+        const placeRef = doc(window.firebaseDb, `users/${currentUserId}/places`, placeData.id);
+        await setDoc(placeRef, placeData);
+        console.log('Place saved successfully');
+    } catch (error) {
+        console.error('Error saving place:', error);
+        showToast('שגיאה בשמירת המקום', 'error');
+        throw error;
     }
 }
 
-function savePlaces() {
-    localStorage.setItem('places', JSON.stringify(places));
+async function deletePlaceFromFirestore(placeId) {
+    if (!currentUserId || !window.firebaseDb) {
+        showToast('יש להתחבר כדי למחוק מקומות', 'error');
+        return;
+    }
+
+    try {
+        const placeRef = doc(window.firebaseDb, `users/${currentUserId}/places`, placeId);
+        await deleteDoc(placeRef);
+        console.log('Place deleted successfully');
+    } catch (error) {
+        console.error('Error deleting place:', error);
+        showToast('שגיאה במחיקת המקום', 'error');
+        throw error;
+    }
 }
 
 // ================================
@@ -62,10 +121,10 @@ function savePlaces() {
 // ================================
 function initEventListeners() {
     // Add button
-    document.getElementById('btnAdd').addEventListener('click', openAddModal);
+    document.getElementById('btnAdd')?.addEventListener('click', openAddModal);
 
     // Search
-    document.getElementById('searchInput').addEventListener('input', (e) => {
+    document.getElementById('searchInput')?.addEventListener('input', (e) => {
         currentFilter.searchQuery = e.target.value.toLowerCase();
         renderPlaces();
     });
@@ -86,7 +145,7 @@ function initEventListeners() {
 
     // Visited toggle
     const toggleVisited = document.getElementById('toggleVisited');
-    toggleVisited.addEventListener('click', (e) => {
+    toggleVisited?.addEventListener('click', (e) => {
         const currentState = currentFilter.visited;
         if (currentState === 'all') {
             currentFilter.visited = 'unvisited';
@@ -109,7 +168,7 @@ function initEventListeners() {
 
     // Priority toggle
     const togglePriority = document.getElementById('togglePriority');
-    togglePriority.addEventListener('click', (e) => {
+    togglePriority?.addEventListener('click', (e) => {
         const priorities = ['all', 'high', 'medium', 'low'];
         const currentIndex = priorities.indexOf(currentFilter.priority);
         const nextIndex = (currentIndex + 1) % priorities.length;
@@ -129,11 +188,11 @@ function initEventListeners() {
     });
 
     // Form submit
-    document.getElementById('placeForm').addEventListener('submit', handleFormSubmit);
+    document.getElementById('placeForm')?.addEventListener('submit', handleFormSubmit);
 
     // Image upload
-    document.getElementById('imageInput').addEventListener('change', handleImageUpload);
-    document.getElementById('btnRemoveImage').addEventListener('click', removeImage);
+    document.getElementById('imageInput')?.addEventListener('change', handleImageUpload);
+    document.getElementById('btnRemoveImage')?.addEventListener('click', removeImage);
 
     // Star rating
     document.querySelectorAll('.star-rating .star').forEach(star => {
@@ -427,7 +486,7 @@ function closeDeleteModal() {
 // ================================
 // CRUD Functions
 // ================================
-function handleFormSubmit(e) {
+async function handleFormSubmit(e) {
     e.preventDefault();
 
     const formData = {
@@ -443,49 +502,45 @@ function handleFormSubmit(e) {
         onlineReservation: document.getElementById('placeOnlineReservation').checked,
         visited: document.getElementById('placeVisited').checked,
         imageUrl: selectedImageData || '',
-        createdAt: editingPlaceId ? places.find(p => p.id === editingPlaceId).createdAt : Date.now(),
+        createdAt: editingPlaceId ? places.find(p => p.id === editingPlaceId)?.createdAt || Date.now() : Date.now(),
         updatedAt: Date.now()
     };
 
-    if (editingPlaceId) {
-        // Update existing
-        const index = places.findIndex(p => p.id === editingPlaceId);
-        if (index !== -1) {
-            places[index] = formData;
-            showToast('המקום עודכן בהצלחה!', 'success');
-        }
-    } else {
-        // Add new
-        places.unshift(formData);
-        showToast('המקום נוסף בהצלחה!', 'success');
+    try {
+        await savePlace(formData);
+        showToast(editingPlaceId ? 'המקום עודכן בהצלחה!' : 'המקום נוסף בהצלחה!', 'success');
+        closeModal();
+    } catch (error) {
+        // Error already shown in savePlace
     }
-
-    savePlaces();
-    renderPlaces();
-    updateStats();
-    closeModal();
 }
 
-function toggleVisited(placeId) {
+async function toggleVisited(placeId) {
     const place = places.find(p => p.id === placeId);
     if (!place) return;
 
-    place.visited = !place.visited;
-    place.visitedDate = place.visited ? Date.now() : null;
+    const updatedPlace = {
+        ...place,
+        visited: !place.visited,
+        visitedDate: !place.visited ? Date.now() : null,
+        updatedAt: Date.now()
+    };
 
-    savePlaces();
-    renderPlaces();
-    updateStats();
-
-    showToast(place.visited ? 'סומן כביקור! 🎉' : 'סימון הביקור הוסר', 'success');
+    try {
+        await savePlace(updatedPlace);
+        showToast(updatedPlace.visited ? 'סומן כביקור! 🎉' : 'סימון הביקור הוסר', 'success');
+    } catch (error) {
+        // Error already shown in savePlace
+    }
 }
 
-function deletePlace(placeId) {
-    places = places.filter(p => p.id !== placeId);
-    savePlaces();
-    renderPlaces();
-    updateStats();
-    showToast('המקום נמחק', 'info');
+async function deletePlace(placeId) {
+    try {
+        await deletePlaceFromFirestore(placeId);
+        showToast('המקום נמחק', 'info');
+    } catch (error) {
+        // Error already shown in deletePlaceFromFirestore
+    }
 }
 
 // ================================
@@ -564,6 +619,15 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
+
+// ================================
+// Make functions global for onclick handlers
+// ================================
+window.toggleVisited = toggleVisited;
+window.openEditModal = openEditModal;
+window.openDeleteModal = openDeleteModal;
+window.closeModal = closeModal;
+window.closeDeleteModal = closeDeleteModal;
 
 // ================================
 // PWA Service Worker
