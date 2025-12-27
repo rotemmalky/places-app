@@ -1,6 +1,6 @@
 // Firebase Authentication Module
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 // Firebase Configuration
@@ -17,6 +17,15 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+// Set persistence to LOCAL (survives browser restarts and works better on iOS)
+setPersistence(auth, browserLocalPersistence)
+    .then(() => {
+        console.log('Persistence set to LOCAL');
+    })
+    .catch((error) => {
+        console.error('Error setting persistence:', error);
+    });
 
 // Export for use in other modules
 window.firebaseAuth = auth;
